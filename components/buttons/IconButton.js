@@ -27,7 +27,7 @@ class IconButton extends React.Component {
     return (
       <TouchableHighlight
         onPress={this.props.onPress}
-        underlayColor="transparent"
+        underlayColor="#346D9F"
         style={{ ...styles.button, ...this.props.style }}
       >
         {this.props.children}

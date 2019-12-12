@@ -8,13 +8,10 @@ import { GOOGLE_MAPS_APIKEY } from "../constants/Key";
 import IconButton from "../components/buttons/IconButton";
 import { Direction } from "../components/icons/Direction";
 import { getFullName } from "../utils/Util";
+import Geocoder from "react-native-geocoding";
 
+Geocoder.init(GOOGLE_MAPS_APIKEY);
 const { width, height } = Dimensions.get("window");
-const ASPECT_RATIO = width / height;
-const LATITUDE = 37.771707;
-const LONGITUDE = -122.4053769;
-const LATITUDE_DELTA = 0.0922;
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 class HomeScreen extends React.Component {
   constructor(props) {
@@ -22,17 +19,8 @@ class HomeScreen extends React.Component {
 
     this.state = {
       fromContact: null,
-      toContact: "",
-      coordinates: [
-        {
-          latitude: 37.3317876,
-          longitude: -122.0054812
-        },
-        {
-          latitude: 37.771707,
-          longitude: -122.4053769
-        }
-      ]
+      toContact: null,
+      coordinates: null
     };
     this.mapView = null;
 
@@ -60,18 +48,35 @@ class HomeScreen extends React.Component {
     }
   }
 
-  handleShowDirection() {
-    // Name	Type	Description
-    // street	string	Street name.
-    // city	string	City name.
-    // country	string	Country name.
-    // region	string	Region or state name.
-    // neighborhood	string	Neighborhood name.
-    // postalCode	string	Local post code.
-    // poBox	string	P.O. Box.
-    // isoCountryCode	string	Standard code.
-    // id	string	Unique ID.
-    // label	string	Localized display name.
+  async handleShowDirection() {
+    const { fromContact, toContact } = this.state;
+    if (!fromContact || !toContact) {
+      Alert.alert("Notice", "Please choose both of contacts.");
+      return;
+    }
+    let fromCoord = Geocoder.from(
+      fromContact.addresses[0].formattedAddress
+    ).then(json => json.results[0].geometry.location);
+    let toCoord = Geocoder.from(toContact.addresses[0].formattedAddress).then(
+      json => json.results[0].geometry.location
+    );
+    try {
+      let coords = await Promise.all([fromCoord, toCoord]);
+      this.setState({
+        coordinates: [
+          {
+            latitude: coords[0].lat,
+            longitude: coords[0].lng
+          },
+          {
+            latitude: coords[1].lat,
+            longitude: coords[1].lng
+          }
+        ]
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   render() {
@@ -130,23 +135,18 @@ class HomeScreen extends React.Component {
           </IconButton>
         </View>
         <MapView
-          initialRegion={{
-            latitude: LATITUDE,
-            longitude: LONGITUDE,
-            latitudeDelta: LATITUDE_DELTA,
-            longitudeDelta: LONGITUDE_DELTA
-          }}
           style={{ flex: 1 }}
           ref={c => (this.mapView = c)}
           onPress={this.onMapPress}
         >
-          {this.state.coordinates.map((coordinate, index) => (
-            <MapView.Marker
-              key={`coordinate_${index}`}
-              coordinate={coordinate}
-            />
-          ))}
-          {this.state.coordinates.length >= 2 && (
+          {this.state.coordinates &&
+            this.state.coordinates.map((coordinate, index) => (
+              <MapView.Marker
+                key={`coordinate_${index}`}
+                coordinate={coordinate}
+              />
+            ))}
+          {this.state.coordinates && this.state.coordinates.length >= 2 && (
             <MapViewDirections
               origin={this.state.coordinates[0]}
               waypoints={
@@ -167,6 +167,7 @@ class HomeScreen extends React.Component {
                 );
               }}
               onReady={result => {
+                if (!result) return;
                 this.mapView.fitToCoordinates(result.coordinates, {
                   edgePadding: {
                     right: width / 20,
@@ -177,6 +178,10 @@ class HomeScreen extends React.Component {
                 });
               }}
               onError={errorMessage => {
+                Alert.alert(
+                  "Notice",
+                  "Invalid route. Please choose different contacts."
+                );
                 console.log(errorMessage);
               }}
             />
@@ -208,7 +213,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
     bottom: 20,
-    elevation: 100
+    zIndex: 100
   }
 });
 
