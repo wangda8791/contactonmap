@@ -1,17 +1,10 @@
+import { API_SERVER } from "../constants/Server";
+
 exports.importContacts = async contacts => {
-  // {
-  //     recordID: '6b2237ee0df85980',
-  //     company: "",
-  //     emailAddresses: [{
-  //       label: "work",
-  //       email: "carl-jung@example.com",
-  //     }],
-  //     familyName: "Jung",
-  //     givenName: "Carl",
-  //     middleName: "",
-  //     phoneNumbers: [{
-  //       label: "mobile",
-  //       number: "(555) 555-5555",
-  //     }],
-  //   }
+  const response = await fetch(`${API_SERVER}contacts/import`, {
+    method: "post",
+    body: JSON.stringify(contacts)
+  });
+  const json = await response.json();
+  return json;
 }
