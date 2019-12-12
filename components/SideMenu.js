@@ -39,7 +39,15 @@ class SideMenu extends React.Component {
     this.props.contactLoaded(contacts);
     this.props.navigation.closeDrawer();
 
-    await importContacts(contacts);
+    try {
+      let res = await importContacts(contacts);
+      if (res.success) {
+        Alert.alert("Success", "Importing contact is succeeded.");
+      }
+    } catch (err) {
+      console.log(err);
+      Alert.alert("Error", "Importing contact to server is failed.");
+    }
   }
 
   render() {

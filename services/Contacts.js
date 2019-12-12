@@ -7,4 +7,4 @@ exports.importContacts = async contacts => {
   });
   const json = await response.json();
   return json;
-}
+};
