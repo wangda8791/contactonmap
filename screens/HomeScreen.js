@@ -75,6 +75,11 @@ class HomeScreen extends React.Component {
         ]
       });
     } catch (err) {
+      if (err.origin) {
+        Alert.alert("Error", err.origin.error_message);
+      } else {
+        Alert.alert("Error", err.message);
+      }
       console.log(err);
     }
   }
@@ -149,6 +154,7 @@ class HomeScreen extends React.Component {
           {this.state.coordinates && this.state.coordinates.length >= 2 && (
             <MapViewDirections
               origin={this.state.coordinates[0]}
+              mode="WALKING"
               waypoints={
                 this.state.coordinates.length > 2
                   ? this.state.coordinates.slice(1, -1)
@@ -167,7 +173,13 @@ class HomeScreen extends React.Component {
                 );
               }}
               onReady={result => {
-                if (!result) return;
+                if (!result) {
+                  Alert.alert(
+                    "Notice",
+                    "Server cannot route this contacts. Please choose different contacts."
+                  );
+                  return;
+                }
                 this.mapView.fitToCoordinates(result.coordinates, {
                   edgePadding: {
                     right: width / 20,
