@@ -1,7 +1,9 @@
 import React from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import GradButton from "./buttons/GradButton";
+import { importContacts } from "../services/Contacts";
+import { getContacts } from "../utils/System";
 
 class SideMenu extends React.Component {
   constructor(props) {
@@ -10,7 +12,35 @@ class SideMenu extends React.Component {
     this.handleImportContacts = this.handleImportContacts.bind(this);
   }
 
-  handleImportContacts() {}
+  handleImportContacts() {
+    Alert.alert(
+      "Action",
+      "Do you really want to import contacts?",
+      [
+        {
+          text: "No",
+          onPress: () => {},
+          style: "cancel"
+        },
+        {
+          text: "Yes",
+          onPress: () => {
+            this.doImportContacts();
+          }
+        }
+      ],
+      { cancelable: false }
+    );
+  }
+
+  async doImportContacts() {
+    let contacts = await getContacts();
+
+    this.props.contactLoaded(contacts);
+    this.props.navigation.closeDrawer();
+
+    await importContacts(contacts);
+  }
 
   render() {
     return (

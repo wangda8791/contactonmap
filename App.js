@@ -5,11 +5,18 @@ import { Platform } from "@unimodules/core";
 import { createAppContainer } from "react-navigation";
 import HomeScreen from "./screens/HomeScreen";
 import SideMenu from "./components/SideMenu";
+import { createStore, combineReducers } from "redux";
+import { Provider, connect } from "react-redux";
+import { reducer } from "./reducers";
+import { contactLoaded } from "./actions/ContactAction";
 
 const MainNavigator = createStackNavigator(
   {
-    Home: { screen: HomeScreen },
-    Index: { screen: HomeScreen }
+    Index: {
+      screen: connect(state => ({ contacts: state.reducer.contacts }))(
+        HomeScreen
+      )
+    }
   },
   {
     headerMode: "none",
@@ -25,7 +32,9 @@ const AppDrawerNavigator = createDrawerNavigator(
     }
   },
   {
-    contentComponent: SideMenu,
+    contentComponent: connect(null, dispatch => ({
+      contactLoaded: contacts => dispatch(contactLoaded(contacts))
+    }))(SideMenu),
     defaultNavigationOptions: {
       gesturesEnabled: false
     },
@@ -36,6 +45,12 @@ const AppDrawerNavigator = createDrawerNavigator(
 
 const AppContainer = createAppContainer(AppDrawerNavigator);
 
-const App = () => <AppContainer />;
+const store = createStore(combineReducers({ reducer }));
+
+const App = () => (
+  <Provider store={store}>
+    <AppContainer />
+  </Provider>
+);
 
 export default App;
