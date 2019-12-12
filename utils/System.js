@@ -7,6 +7,7 @@ exports.getContacts = async () => {
   if (status === "granted") {
     const { data } = await Contacts.getContactsAsync({
       fields: [
+        Contacts.Fields.ID,
         Contacts.Fields.Company,
         Contacts.Fields.Emails,
         Contacts.Fields.FirstName,
@@ -18,6 +19,7 @@ exports.getContacts = async () => {
 
     contacts = data.map(item => {
       return {
+        id: item.id,
         company: item.company,
         emailAddresses: item.emails
           ? item.emails.map(email => ({

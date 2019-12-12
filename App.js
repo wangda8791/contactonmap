@@ -9,13 +9,23 @@ import { createStore, combineReducers } from "redux";
 import { Provider, connect } from "react-redux";
 import { reducer } from "./reducers";
 import { contactLoaded } from "./actions/ContactAction";
+import ContactScreen from "./screens/ContactScreen";
+
+const mapStateToProps = state => ({ contacts: state.reducer.contacts });
+const mapDispatchToProps = dispatch => ({
+  contactLoaded: contacts => dispatch(contactLoaded(contacts))
+});
 
 const MainNavigator = createStackNavigator(
   {
+    Home: {
+      screen: connect(mapStateToProps, mapDispatchToProps)(HomeScreen)
+    },
+    Contact: {
+      screen: connect(mapStateToProps, mapDispatchToProps)(ContactScreen)
+    },
     Index: {
-      screen: connect(state => ({ contacts: state.reducer.contacts }))(
-        HomeScreen
-      )
+      screen: connect(mapStateToProps, mapDispatchToProps)(HomeScreen)
     }
   },
   {
@@ -32,9 +42,7 @@ const AppDrawerNavigator = createDrawerNavigator(
     }
   },
   {
-    contentComponent: connect(null, dispatch => ({
-      contactLoaded: contacts => dispatch(contactLoaded(contacts))
-    }))(SideMenu),
+    contentComponent: connect(mapStateToProps)(SideMenu),
     defaultNavigationOptions: {
       gesturesEnabled: false
     },

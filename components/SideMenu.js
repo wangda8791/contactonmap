@@ -3,13 +3,13 @@ import { View, StyleSheet, Text, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import GradButton from "./buttons/GradButton";
 import { importContacts } from "../services/Contacts";
-import { getContacts } from "../utils/System";
 
 class SideMenu extends React.Component {
   constructor(props) {
     super(props);
 
     this.handleImportContacts = this.handleImportContacts.bind(this);
+    this.handleShowDirection = this.handleShowDirection.bind(this);
   }
 
   handleImportContacts() {
@@ -33,14 +33,16 @@ class SideMenu extends React.Component {
     );
   }
 
-  async doImportContacts() {
-    let contacts = await getContacts();
+  handleShowDirection() {
+    this.props.navigation.navigate("Home");
+  }
 
-    this.props.contactLoaded(contacts);
+  async doImportContacts() {
+    this.props.navigation.navigate("Contact");
     this.props.navigation.closeDrawer();
 
     try {
-      let res = await importContacts(contacts);
+      let res = await importContacts(this.props.contacts);
       if (res.success) {
         Alert.alert("Success", "Importing contact is succeeded.");
       }
@@ -79,9 +81,15 @@ class SideMenu extends React.Component {
           <View style={{ flexGrow: 1 }}>
             <GradButton
               title="Import Contacts"
-              style={styles.importButton}
-              textStyle={styles.importButtonText}
+              style={styles.buttonStyle}
+              textStyle={styles.buttonTextStyle}
               onPress={this.handleImportContacts}
+            />
+            <GradButton
+              title="Show Direction"
+              style={styles.buttonStyle}
+              textStyle={styles.buttonTextStyle}
+              onPress={this.handleShowDirection}
             />
           </View>
         </View>
@@ -118,13 +126,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "white"
   },
-  importButton: {
+  buttonStyle: {
     height: 48,
     borderRadius: 24,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    marginBottom: 10
   },
-  importButtonText: {
+  buttonTextStyle: {
     fontFamily: "Roboto",
     fontWeight: "300",
     fontSize: 16,
