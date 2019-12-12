@@ -13,7 +13,8 @@ exports.getContacts = async () => {
         Contacts.Fields.FirstName,
         Contacts.Fields.LastName,
         Contacts.Fields.MiddleName,
-        Contacts.Fields.PhoneNumbers
+        Contacts.Fields.PhoneNumbers,
+        Contacts.Fields.Addresses
       ]
     });
 
@@ -35,7 +36,8 @@ exports.getContacts = async () => {
               label: phone.label,
               number: phone.number
             }))
-          : []
+          : [],
+        addresses: item.addresses ? item.addresses : []
       };
     });
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Picker, Dimensions, StyleSheet } from "react-native";
+import { View, Picker, Alert, Dimensions, StyleSheet } from "react-native";
 import Header from "../components/Header";
 import { getContacts } from "../utils/System";
 import MapView from "react-native-maps";
@@ -7,6 +7,7 @@ import MapViewDirections from "react-native-maps-directions";
 import { GOOGLE_MAPS_APIKEY } from "../constants/Key";
 import IconButton from "../components/buttons/IconButton";
 import { Direction } from "../components/icons/Direction";
+import { getFullName } from "../utils/Util";
 
 const { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
@@ -20,7 +21,7 @@ class HomeScreen extends React.Component {
     super(props);
 
     this.state = {
-      fromContact: "",
+      fromContact: null,
       toContact: "",
       coordinates: [
         {
@@ -43,7 +44,35 @@ class HomeScreen extends React.Component {
     this.props.contactLoaded(contacts);
   }
 
-  handleShowDirection() {}
+  handleFromContactChange(contact) {
+    if (contact && contact == this.state.toContact) {
+      Alert.alert("Notice", "Please choose different contact than other one.");
+    } else {
+      this.setState({ fromContact: contact });
+    }
+  }
+
+  handleToContactChange(contact) {
+    if (contact && contact == this.state.fromContact) {
+      Alert.alert("Notice", "Please choose different contact than other one.");
+    } else {
+      this.setState({ toContact: contact });
+    }
+  }
+
+  handleShowDirection() {
+    // Name	Type	Description
+    // street	string	Street name.
+    // city	string	City name.
+    // country	string	Country name.
+    // region	string	Region or state name.
+    // neighborhood	string	Neighborhood name.
+    // postalCode	string	Local post code.
+    // poBox	string	P.O. Box.
+    // isoCountryCode	string	Standard code.
+    // id	string	Unique ID.
+    // label	string	Localized display name.
+  }
 
   render() {
     return (
@@ -62,21 +91,36 @@ class HomeScreen extends React.Component {
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={this.state.fromContact}
-              onValueChange={fromContact => this.setState({ fromContact })}
+              onValueChange={fromContact =>
+                this.handleFromContactChange(fromContact)
+              }
               style={styles.pickerStyle}
-              mode={Picker.MODE_DIALOG}
+              itemStyle={{ height: 300 }}
             >
-              <Picker.Item label="Please select contact" value="" />
+              <Picker.Item label="Please select contact" value={null} />
+              {this.props.contacts.map(contact => (
+                <Picker.Item
+                  key={contact.id}
+                  label={getFullName(contact)}
+                  value={contact}
+                />
+              ))}
             </Picker>
           </View>
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={this.state.toContact}
-              onValueChange={toContact => this.setState({ toContact })}
+              onValueChange={toContact => this.handleToContactChange(toContact)}
               style={styles.pickerStyle}
-              mode={Picker.MODE_DIALOG}
             >
-              <Picker.Item label="Please select contact" value="" />
+              <Picker.Item label="Please select contact" value={null} />
+              {this.props.contacts.map(contact => (
+                <Picker.Item
+                  key={contact.id}
+                  label={getFullName(contact)}
+                  value={contact}
+                />
+              ))}
             </Picker>
           </View>
         </View>
@@ -123,9 +167,6 @@ class HomeScreen extends React.Component {
                 );
               }}
               onReady={result => {
-                console.log("Distance: ${result.distance} km");
-                console.log("Duration: ${result.duration} min.");
-
                 this.mapView.fitToCoordinates(result.coordinates, {
                   edgePadding: {
                     right: width / 20,
@@ -136,7 +177,7 @@ class HomeScreen extends React.Component {
                 });
               }}
               onError={errorMessage => {
-                // console.log('GOT AN ERROR');
+                console.log(errorMessage);
               }}
             />
           )}

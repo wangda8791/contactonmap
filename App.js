@@ -10,8 +10,12 @@ import { Provider, connect } from "react-redux";
 import { reducer } from "./reducers";
 import { contactLoaded } from "./actions/ContactAction";
 import ContactScreen from "./screens/ContactScreen";
+import { getAddressableContact } from "./selectors/ContactSelector";
 
-const mapStateToProps = state => ({ contacts: state.reducer.contacts });
+const mapContactStateToProps = state => ({ contacts: state.reducer.contacts });
+const mapAddressContactStateToProps = state => ({
+  contacts: getAddressableContact(state)
+});
 const mapDispatchToProps = dispatch => ({
   contactLoaded: contacts => dispatch(contactLoaded(contacts))
 });
@@ -19,13 +23,19 @@ const mapDispatchToProps = dispatch => ({
 const MainNavigator = createStackNavigator(
   {
     Home: {
-      screen: connect(mapStateToProps, mapDispatchToProps)(HomeScreen)
+      screen: connect(
+        mapAddressContactStateToProps,
+        mapDispatchToProps
+      )(HomeScreen)
     },
     Contact: {
-      screen: connect(mapStateToProps, mapDispatchToProps)(ContactScreen)
+      screen: connect(mapContactStateToProps, mapDispatchToProps)(ContactScreen)
     },
     Index: {
-      screen: connect(mapStateToProps, mapDispatchToProps)(HomeScreen)
+      screen: connect(
+        mapAddressContactStateToProps,
+        mapDispatchToProps
+      )(HomeScreen)
     }
   },
   {
@@ -42,7 +52,7 @@ const AppDrawerNavigator = createDrawerNavigator(
     }
   },
   {
-    contentComponent: connect(mapStateToProps)(SideMenu),
+    contentComponent: connect(mapContactStateToProps)(SideMenu),
     defaultNavigationOptions: {
       gesturesEnabled: false
     },
