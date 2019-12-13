@@ -1,15 +1,20 @@
 {
   "expo": {
-    "name": "Test1",
-    "slug": "test1",
+    "name": "Contact on Map",
+    "slug": "contactonmap",
     "privacy": "public",
     "sdkVersion": "35.0.0",
     "platforms": ["ios", "android", "web"],
     "ios": {
-      "bundleIdentifier": "com.wangda.test1"
+      "bundleIdentifier": "com.wangda.sample"
     },
     "android": {
-      "package": "com.wangda.test1"
+      "package": "com.wangda.sample",
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
+      }
     },
     "version": "1.0.0",
     "orientation": "portrait",

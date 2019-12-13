@@ -10,7 +10,6 @@ import { Direction } from "../components/icons/Direction";
 import { getFullName } from "../utils/Util";
 import Geocoder from "react-native-geocoding";
 
-Geocoder.init(GOOGLE_MAPS_APIKEY);
 const { width, height } = Dimensions.get("window");
 
 class HomeScreen extends React.Component {
@@ -28,6 +27,15 @@ class HomeScreen extends React.Component {
   }
 
   async componentDidMount() {
+    try {
+      Geocoder.init(GOOGLE_MAPS_APIKEY);
+    } catch (err) {
+      if (err.origin) {
+        Alert.alert("Error", err.origin.error_message);
+      } else {
+        Alert.alert("Error", err.message);
+      }
+    }
     let contacts = await getContacts();
     this.props.contactLoaded(contacts);
   }
